@@ -27,5 +27,6 @@
     (-> app
         (b/update-frontend (fn [item]
                              ;; TODO: warn if item was != nil ?
+                             ;; TODO: add 'not found' page for unknown routes?
                              (pcore/html5-history-router pages)))
         (b/set-setting ::csr-pages nil))))

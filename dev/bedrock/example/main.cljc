@@ -14,4 +14,5 @@
    (b/start-frontend app))
 
 #?(:clj
-   (def handler (b/handler app)))
+   (def handler
+     (b/reloading-handler app {:dirs ["src" "dev"]})))

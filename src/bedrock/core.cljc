@@ -1,6 +1,7 @@
 (ns bedrock.core
   (:require #?(:cljs [bedrock.utils.reacl-c-adapter :as reacl-c-adapter])
-            #?(:clj [bedrock.utils.ring-adapter :as ring-adapter])))
+            #?(:clj [bedrock.utils.ring-adapter :as ring-adapter])
+            #?(:clj [ring.middleware.reload :as rmr])))
 
 (defrecord App [settings frontend backend]
   ;; settings: {}
@@ -31,8 +32,21 @@
   (get (:settings app) key dflt))
 
 
-(defn handler [app]
+(defn handler
+  "Returns a ring handler for the given app."
+  [app]
   (:backend app))
+
+#?(:clj
+   (defmacro reloading-handler
+     "Returns a ring handler for the given app, with hot-code reloading
+  enabled. Use [[handler]] for production code. Options are that
+  of [[ring.middleware.reload/wrap-reload]]."
+     [app & [options]]
+     ;; Note: adding an indirection so that the 'same' handler sees a redefined app; which is also why this has to be a macro.
+     `(-> (fn [req#]
+            ((handler ~app) req#))
+          (rmr/wrap-reload ~options))))
 
 #?(:clj
    (defn run-server [app & [options]]
