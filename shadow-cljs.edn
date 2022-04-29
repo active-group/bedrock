@@ -18,6 +18,6 @@
            :devtools  {:http-port          9201
                        :http-root          "target/public/test"}}
           
-          #_:ci
-          #_{:target :karma :output-to "target/ci.js"}
+          :ci
+          {:target :karma :output-to "target/ci.js"}
           }}
