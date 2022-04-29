@@ -6,7 +6,7 @@
 (def hello-world
   (-> b/empty-app
       (spa/page "/" (constantly "Hello World"))
-      (spa/build {:html-head [:title "Hello"]})))
+      (spa/build {:head-html [[:title "Hello World App"]]})))
 
 (def app hello-world)
 

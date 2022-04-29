@@ -36,9 +36,10 @@
       (serve-const pred (-> (rur/response html)
                             (rur/content-type "text/html")))))
 
-(defn serve-client [app pred main-js & [head]]
+(defn serve-js-app [app pred main-js & [options]]
   (-> app
-      (serve-const-html pred (html/generate-main-html main-js head))))
+      (serve-const-html pred (html/generate-main-html main-js {:head (:head-html options)
+                                                               :loading (:loading-html options)}))))
 
 (defn serve-resources [app path & [options]]
   (-> app

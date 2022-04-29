@@ -32,12 +32,13 @@
      (defn serve-client
        "Adds backend routes for all page routes, responding with a html page
   that starts the compiled frontend."
-       [app main-js & [html-head]]
+       [app & [options]]
        ;; serve same JS for all client-side routes.
-       (let [routes (b/get-setting app ::spa-routes)]
+       (let [main-js (or (:main-js options) "/js/main.js")
+             routes (b/get-setting app ::spa-routes)]
          (-> app
-             (ring/serve-client (f/partial matches-any routes)
-                                main-js html-head)
+             (ring/serve-js-app (f/partial matches-any routes)
+                                main-js (dissoc options :main-js))
              (b/set-setting ::spa-routes nil))))))
 
 (defn build
@@ -48,5 +49,7 @@
   [app & [options]]
   (-> app
       #?(:cljs (csr/build))
-      #?(:clj (serve-client (get options :main-js "/js/main.js") (get options :html-head nil)))
-      #?(:clj (ring/serve-resources "public"))))
+      #?(:clj (serve-client {:main-js (:main-js options)
+                             :loading-html (:loading-html options)
+                             :head-html (:head-html options)}))
+      #?(:clj (ring/serve-resources "public" (dissoc options :main-js :html-head)))))
