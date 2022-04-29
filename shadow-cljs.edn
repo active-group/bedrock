@@ -1,0 +1,23 @@
+{
+ :lein true
+
+ :builds {:example
+          {:target :browser
+           :output-dir "target/public/example/js"
+           :asset-path "/"
+           :modules {:main {:entries [bedrock.example.main]}}
+           :devtools {:hud #{:errors :warnings :progress}
+                      :http-root "target/public/example"
+                      :http-port 9200
+                      :http-handler bedrock.example.main/handler
+                      :preloads [shadow.remote.runtime.cljs.browser]}}
+          
+          :test
+          {:target :browser-test
+           :test-dir "target/public/test"
+           :devtools  {:http-port          9201
+                       :http-root          "target/public/test"}}
+          
+          #_:ci
+          #_{:target :karma :output-to "target/ci.js"}
+          }}
