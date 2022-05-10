@@ -10,5 +10,5 @@
              #?(:clj (jdbc/create-entity-table! db :people))
              db)]
     (-> b/empty-app
-        (entites/editable-entity-list "/" :people [[:name :str]] db)
+        (entites/editable-entity-list "/" :people db {:name "" :birthday ""})
         (spa/build {:head-html [[:title "Hello Entites App"]]}))))

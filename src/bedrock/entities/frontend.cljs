@@ -7,7 +7,56 @@
             [active.clojure.lens :as lens]
             [active.clojure.functions :as f]))
 
-(c/defn-item entity-list :static [route]
+(defn schema? [v]
+  (and (map? v) (contains? v ::output)))
+
+(defn entity-schema
+  ([output]
+   {::output output})
+  ([empty output input]
+   {::empty empty
+    ::output output
+    ::input input}))
+
+(defn generic-schema [keys-types]
+  (entity-schema
+   (into {}
+         (map (fn [[key type]]
+                [key (case type
+                       :str "")])
+              keys-types))
+   (fn [value]
+     (apply dom/div
+            (map (fn [[key type]]
+                   (let [value (get value key)]
+                     (dom/div (dom/div (name key))
+                              (dom/div (str value)))))
+                 keys-types)))
+   (apply c/fragment
+          (map (fn [[key type]]
+                 (c/focus key (dom/div (dom/label (name key))
+                                       (case type
+                                         :str (forms/input-string)))))
+               keys-types))))
+
+(defn derive-schema [empty]
+  (generic-schema (map (fn [[k v]]
+                         [k (condp = v
+                              "" :str)])
+                       empty)))
+
+(defn- empty-from-schema [schema]
+  (::empty schema))
+
+(defn- inputs-from-schema [schema]
+  (::input schema))
+
+(defn- show-from-schema [schema value]
+  ((::output schema) value))
+
+(def ^:private json-request-format (ajax-json/json-request-format))
+
+(c/defn-item entity-list :static [route schema]
   (c/isolate-state
    nil
    (c/fragment (ajax/fetch (ajax/GET route {:keywords? true
@@ -18,39 +67,11 @@
                               "Loading..."
                                               
                               (ajax/response-ok? res)
-                              (apply dom/ul
-                                     (map (fn [[id value]]
-                                            (pr-str value))
-                                          (ajax/response-value res)))
+                              (show-from-schema schema (ajax/response-value res))
 
                               :else
                               (throw (ajax/response-value res))))))))
 
-;; TODO: what should schema look like; or abstract over empty, output and input
-
-(defn- empty-from-schema [schema]
-  (into {}
-        (map (fn [[key type]]
-               [key (case type
-                      :str "")])
-             schema)))
-
-(defn- inputs-from-schema [schema]
-  (apply c/fragment
-         (map (fn [[key type]]
-                (c/focus key (dom/div (dom/label (str key))
-                                      (case type
-                                        :str (forms/input-string)))))
-              schema)))
-
-(defn- show-from-schema [schema value]
-  (apply dom/div
-         (map (fn [[key value]]
-                (dom/div (dom/div (str key))
-                         (dom/div (str value))))
-              value)))
-
-(def ^:private json-request-format (ajax-json/json-request-format))
 
 (defn- entity-server-action-form [initial schema mk-request job-id & content]
   (c/local-state initial
@@ -95,6 +116,7 @@
                            "Delete")))))
 
 (c/defn-item editable-entity-list :static [route schema]
+  ;; TODO: allow to modify layout; buttons; labels?
   (c/isolate-state
    nil
    (ajax/delivery
@@ -104,14 +126,13 @@
                                              :init)))
      (ajax/delivery
       (dom/div (add-entity-form route schema :add)
-               (dom/hr)
                (c/dynamic (fn [res]
                             (cond
                               (nil? res)
                               "Loading..."
                                               
                               (ajax/response-ok? res)
-                              (apply dom/ul
+                              (apply dom/div ;; TODO: suitable wrapper for all from schema?
                                      (map (fn [[id value]]
                                             (editable-entity (str route "/" id) schema value
                                                              :update :delete))
