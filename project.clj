@@ -12,8 +12,10 @@
 
                  [ring "1.9.5"]
                  [ring-middleware-format "0.7.5"]
+                 [metosin/ring-http-response "0.9.3"]
                  [compojure "1.6.2"]
-                 [hiccup "1.0.5"]]
+                 [hiccup "1.0.5"]
+                 [org.clojure/java.jdbc "0.7.12"]]
 
   :source-paths ["src"]
 
@@ -21,5 +23,7 @@
 
   :profiles {:dev {:source-paths ["src" "dev"]
                    :dependencies [[thheller/shadow-cljs "2.11.23"]
-                                  [binaryage/devtools "1.0.2"]]}}
+                                  [binaryage/devtools "1.0.2"]
+
+                                  [com.h2database/h2 "2.1.212"]]}}
   )

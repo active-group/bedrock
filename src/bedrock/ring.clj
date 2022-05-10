@@ -17,7 +17,7 @@
                             (f/partial g handler pred f))))))
 
 (let [g (fn [handler r req]
-          (or (r req) (handler r)))]
+          (or (r req) (handler req)))]
   (defn serve-routes [app & routes]
     (let [r (apply compojure/routes routes)]
       (-> app
@@ -29,7 +29,8 @@
       (serve-routes (compojure/make-route method path f))))
 
 (defn serve-const [app pred resp]
-  (serve app pred (f/constantly resp)))
+  (-> app
+      (serve pred (f/constantly resp))))
 
 (defn serve-const-html [app pred html]
   (-> app

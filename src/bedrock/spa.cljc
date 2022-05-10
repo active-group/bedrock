@@ -15,11 +15,13 @@
 
   Note: After adding all pages, you must call [[build]] once.
   "
-  [app route item-f]
-  (let [route (if (string? route) (routes/route route) route)]
-    (-> app
-        (b/update-setting ::spa-routes conj route)
-        #?(:cljs (csr/serve route item-f)))))
+  #?(:clj ([app route]
+           (page app route (f/constantly nil))))
+  ([app route item-f]
+   (let [route (if (string? route) (routes/route route) route)]
+     (-> app
+         (b/update-setting ::spa-routes conj route)
+         #?(:cljs (csr/serve route item-f))))))
 
 #?(:clj
    (do
@@ -52,4 +54,5 @@
       #?(:clj (serve-client {:main-js (:main-js options)
                              :loading-html (:loading-html options)
                              :head-html (:head-html options)}))
-      #?(:clj (ring/serve-resources "public" (dissoc options :main-js :html-head)))))
+      #?(:clj (ring/serve-resources "public" (dissoc options :main-js :html-head)))
+      ))

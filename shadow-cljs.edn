@@ -4,7 +4,7 @@
  :builds {:example
           {:target :browser
            :output-dir "target/public/example/js"
-           :asset-path "/"
+           :asset-path "/js"
            :modules {:main {:entries [bedrock.example.main]}}
            :devtools {:hud #{:errors :warnings :progress}
                       :http-root "target/public/example"
