@@ -1,7 +1,6 @@
 (ns bedrock.example.hello-db
   (:require [bedrock.core :as b]
             [bedrock.spa :as spa]
-            [reacl-c.dom :as dom]
             [bedrock.entities :as entites]
             #?(:clj [bedrock.utils.jdbc :as jdbc])))
 

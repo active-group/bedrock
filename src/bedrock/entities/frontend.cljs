@@ -26,18 +26,20 @@
                        :str "")])
               keys-types))
    (fn [value]
-     (apply dom/div
-            (map (fn [[key type]]
-                   (let [value (get value key)]
-                     (dom/div (dom/div (name key))
-                              (dom/div (str value)))))
-                 keys-types)))
-   (apply c/fragment
-          (map (fn [[key type]]
-                 (c/focus key (dom/div (dom/label (name key))
-                                       (case type
-                                         :str (forms/input-string)))))
-               keys-types))))
+     (dom/table
+      (apply dom/tbody
+             (map (fn [[key type]]
+                    (let [value (get value key)]
+                      (dom/tr (dom/td (name key))
+                              (dom/td (str value)))))
+                  keys-types))))
+   (dom/table
+    (apply dom/tbody
+           (map (fn [[key type]]
+                  (c/focus key (dom/tr (dom/td (dom/label (name key)))
+                                       (dom/td (case type
+                                                 :str (forms/input-string))))))
+                keys-types)))))
 
 (defn derive-schema [empty]
   (generic-schema (map (fn [[k v]]
